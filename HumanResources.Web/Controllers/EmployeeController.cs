@@ -14,69 +14,70 @@ public class EmployeeController : Controller
     {
         db = _db;
     }
-    public IActionResult HR()
+    public async Task<IActionResult> HR()
     {
-        var employees = db.Employees.Include(e => e.Department).Include(e => e.Designation).ToList();
+        var employees = await db.Employees.Include(e => e.Department).Include(e => e.Designation).ToListAsync();
 
         return View(employees);
     }
 
-    public IActionResult Add()
+    public async Task<IActionResult> Add()
     {
-        var departments = db.Departments.Select(department => new SelectListItem 
+        var departments = await db.Departments.Select(department => new SelectListItem 
         {
             Text = department.Name, 
             Value = department.Id.ToString()
-        });
+        }).ToListAsync();
         ViewData["departments"] = departments;
 
-        var designations = db.Designations.Select(designation => new SelectListItem 
+        var designations = await db.Designations.Select(designation => new SelectListItem 
         {
             Text = designation.Name, 
             Value = designation.Id.ToString()
-        });
+        }).ToListAsync();
         ViewData["designations"] = designations;
         
         return View();
     }
     
     [HttpPost]
-    public IActionResult Add(Employee employee)
+    public async Task<IActionResult> Add(Employee employee)
     {
         var relativePath = SaveProfileImage(employee.ProfileImage);
         employee.ProfileImagePath = relativePath;
-        db.Employees.Add(employee);
-        db.SaveChanges();
+       
+        await db.Employees.AddAsync(employee);
+        await db.SaveChangesAsync();
 
         return RedirectToAction(nameof(HR));
     }
 
-    public IActionResult Edit(int id)
+    public async Task<IActionResult> Edit(int id)
     {
-        var employee = db.Employees.Find(id);
+        var employee = await db.Employees.FindAsync(id);
         return View(employee);
     }
 
     [HttpPost]
-    public IActionResult Edit(Employee employee)
+    public async Task<IActionResult> Edit(Employee employee)
     {
         db.Employees.Update(employee);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
 
         return RedirectToAction(nameof(HR));
     }
 
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var employee = db.Employees.Find(id);
+        var employee = await db.Employees.FindAsync(id);
         return View(employee);
     }
 
     [HttpPost]
-    public IActionResult Delete(Employee employee)
+    public async Task<IActionResult> Delete(Employee employee)
     {
         db.Employees.Remove(employee);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
 
         return RedirectToAction(nameof(HR));
     }
@@ -84,9 +85,9 @@ public class EmployeeController : Controller
     private string SaveProfileImage(IFormFile profileImage)    
 
     {   
-        var filename = profileImage.FileName;
-        var uniqueFileName = $"{Guid.NewGuid()}_(fileName)";
-        var relativePath = $"/images/profile/{uniqueFileName}";
+        var fileName = profileImage.FileName;
+        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+        var relativePath = $"/Images/profile/{uniqueFileName}";
         var currentAppPath = Directory.GetCurrentDirectory();
         var fullFilePath = Path.Combine(currentAppPath, $"wwwroot/(relativePath)");
         

@@ -17,9 +17,12 @@ namespace HumanResources.Web.Controllers
         // GET: Departments
         public async Task<IActionResult> Index()
         {
-              return _context.Departments != null ? 
-                          View(await _context.Departments.ToListAsync()) :
-                          Problem("Entity set 'HRDbContext.Departments'  is null.");
+              if(_context.Departments == null)
+                return Problem("Entity set 'HRDbContext.Departments'  is null.");
+            
+            var departments = await _context.Departments.ToListAsync();
+
+            return View(departments);                
         }
 
         // GET: Departments/Details/5
