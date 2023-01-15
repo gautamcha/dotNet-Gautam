@@ -1,4 +1,4 @@
-﻿@model List<Employee>
+﻿@model List<EmployeeViewModel>
 
 @{
     ViewData["Title"] = "Employees";
@@ -35,8 +35,8 @@
                 <td>@employee.Gender</td>
                 <td>@employee.Dob?.ToString("MMMM dd, yyyy")</td>
                 <td>@employee.JoinDate.ToString("MMMM dd, yyyy")</td>
-                <td>@employee.Department?.Name</td>
-                <td>@employee.Designation?.Name</td>
+                <td>@employee.DepartmentName</td>
+                <td>@employee.DesignationName</td>
                 <td>
                     <a href="/employee/edit/@employee.Id">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-pencil-square" viewBox="0 0 16 16">

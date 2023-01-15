@@ -1,4 +1,6 @@
+using HumanResources.Web.Mapper;
 using HumanResources.Web.Models;
+using HumanResources.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +20,9 @@ public class EmployeeController : Controller
     {
         var employees = await db.Employees.Include(e => e.Department).Include(e => e.Designation).ToListAsync();
 
-        return View(employees);
+        var employeeViewModels = employees.ToViewModel();
+        
+        return View(employeeViewModels);
     }
 
     public async Task<IActionResult> Add()
@@ -41,10 +45,14 @@ public class EmployeeController : Controller
     }
     
     [HttpPost]
-    public async Task<IActionResult> Add(Employee employee)
+    public async Task<IActionResult> Add(EmployeeViewModel employeeViewModel)
     {
-        var relativePath = SaveProfileImage(employee.ProfileImage);
-        employee.ProfileImagePath = relativePath;
+        
+        var relativePath = SaveProfileImage(employeeViewModel.ProfileImage);
+        
+        employeeViewModel.ProfileImagePath = relativePath;
+        var employee = employeeViewModel.ToModel();
+       
        
         await db.Employees.AddAsync(employee);
         await db.SaveChangesAsync();
@@ -87,9 +95,9 @@ public class EmployeeController : Controller
     {   
         var fileName = profileImage.FileName;
         var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-        var relativePath = $"/Images/profile/{uniqueFileName}";
+        var relativePath = $"/Images/Profile/{uniqueFileName}";
         var currentAppPath = Directory.GetCurrentDirectory();
-        var fullFilePath = Path.Combine(currentAppPath, $"wwwroot/(relativePath)");
+        var fullFilePath = Path.Combine(currentAppPath, $"wwwroot/{relativePath}");
         
         var stream = System.IO.File.Create(fullFilePath);
         profileImage.CopyTo(stream);
